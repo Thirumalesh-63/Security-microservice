@@ -1,11 +1,20 @@
 package com.zapcom.Jwtsecurity.Controller;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +36,14 @@ public class Authcontroller {
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
+	
+	
+
+	@PostMapping("/user")
+	public ResponseEntity<User> CreateUser(@RequestBody User user){
+		return new ResponseEntity<>(authService.createUser(user),HttpStatus.CREATED);
+
+	}
 
 
 	@PostMapping("/login")
@@ -48,11 +65,25 @@ public class Authcontroller {
 	}
 
 
-	@PostMapping("/validate")
-	public UserDetails validate(@RequestParam("token") String token) {
-		return authService.validate(token);
-		
+
+	
+	@GetMapping("/validate")
+	public ResponseEntity<Map<String, Object>> validate(@RequestParam("token") String token) {
+	    UserDetails userDetails = authService.validate(token);
+	    System.err.println(userDetails);
+	    if (userDetails == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("message", "Invalid token"));
+	    }
+	    
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("username", userDetails.getUsername());
+	    response.put("roles", userDetails.getAuthorities().stream()
+	        .map(GrantedAuthority::getAuthority)
+	        .collect(Collectors.toList()));
+	    
+	    return ResponseEntity.ok(response);
 	}
+
 
 
 }
