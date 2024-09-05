@@ -15,50 +15,46 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import com.zapcom.Jwtsecurity.model.CustomUserDetailsService;
 
-
 @Configuration
 @EnableWebSecurity
 public class Authconfig {
 //	
 	@Bean
 	public UserDetailsService userDetailsService() {
-		 return new CustomUserDetailsService();
-		
+		return new CustomUserDetailsService();
+
 	}
-	
+
 	@Bean
 	public SecurityFilterChain securityfilterchain(HttpSecurity http) throws Exception {
-		
-		http
-		.csrf()
-		.disable()
-		.authorizeRequests()
-		.requestMatchers("/auth/login","/auth/valiate").permitAll();	
+
+		http.csrf().disable().authorizeRequests().requestMatchers("/auth/register","/auth/login", "/auth/valiate").permitAll();
 		return http.build();
-		
+
 	}
-	
-	 @Bean
-	   public AuthenticationProvider authenticationprovider() {
-		   DaoAuthenticationProvider authprovider=new DaoAuthenticationProvider();
-		    authprovider.setUserDetailsService(userDetailsService());
-		    authprovider.setPasswordEncoder(passwordEncoder());
-		    return authprovider;
-	   }
-	   @Bean
-	   public AuthenticationManager authenticationmanager(AuthenticationConfiguration config) throws Exception {
-		   return config.getAuthenticationManager();
-	   }
-	   
-	   @Bean
-	   public PasswordEncoder passwordEncoder() {
-		
-		   return NoOpPasswordEncoder.getInstance();	
-		   }
-	   
-	   @Bean
-	   public CustomUserDetailsService customUserDetailsService() {
-		   return new CustomUserDetailsService();
-	   }
+
+	@Bean
+	public AuthenticationProvider authenticationprovider() {
+		DaoAuthenticationProvider authprovider = new DaoAuthenticationProvider();
+		authprovider.setUserDetailsService(userDetailsService());
+		authprovider.setPasswordEncoder(passwordEncoder());
+		return authprovider;
+	}
+
+	@Bean
+	public AuthenticationManager authenticationmanager(AuthenticationConfiguration config) throws Exception {
+		return config.getAuthenticationManager();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+
+		return NoOpPasswordEncoder.getInstance();
+	}
+
+	@Bean
+	public CustomUserDetailsService customUserDetailsService() {
+		return new CustomUserDetailsService();
+	}
 
 }
